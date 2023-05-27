@@ -55,7 +55,7 @@ public class UserDetailsImpl implements UserDetails{
     }
 
     // provide a method that takes a user entity, and extracts core information to make a UserDetails object 
-    public UserDetailsImpl userToUserDetailsImpl(User user) {
+    public static UserDetailsImpl build(User user) {
         // map the set of roles of the user to a list of GrantedAuthority
 
         // learned streams, try using 

@@ -68,7 +68,7 @@ public class JwtUtils {
         return username;
     }
     
-    public boolean jwtValidtor(String token) {
+    public boolean validateJwtToken(String token) {
         boolean validity = false;
 
         try {

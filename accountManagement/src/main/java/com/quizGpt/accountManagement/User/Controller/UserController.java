@@ -16,14 +16,16 @@ import com.quizGpt.accountManagement.User.Dto.UserDto;
 import com.quizGpt.accountManagement.User.Entity.User;
 import com.quizGpt.accountManagement.User.Service.UserServiceImpl;
 
+import lombok.AllArgsConstructor;
+
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api/users")
 public class UserController {
 
     private ModelMapper modelMapper;
 
     private UserServiceImpl userService;
-
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable(name = "id") Long id) {
@@ -37,17 +39,17 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody UserDto userDto) {
         User userRequest = modelMapper.map(userDto, User.class);
         
-        if (userService.existsByUsername(userRequest.getUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("ERROR: this username has already been used - " + userRequest.getUsername());
-        }
+        // if (userService.existsByUsername(userRequest.getUsername())) {
+        //     return ResponseEntity
+        //             .badRequest()
+        //             .body("ERROR: this username has already been used - " + userRequest.getUsername());
+        // }
 
-        if (userService.existsByEmail(userRequest.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("ERROR: this email has already been used - " + userRequest.getEmail());
-        }
+        // if (userService.existsByEmail(userRequest.getEmail())) {
+        //     return ResponseEntity
+        //             .badRequest()
+        //             .body("ERROR: this email has already been used - " + userRequest.getEmail());
+        // }
 
         User user = userService.createUser(userRequest);
         UserDto userResponseDto = modelMapper.map(user, UserDto.class);

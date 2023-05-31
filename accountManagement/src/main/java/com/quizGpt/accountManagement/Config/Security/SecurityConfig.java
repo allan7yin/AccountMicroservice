@@ -4,8 +4,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+// import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,21 +14,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Configuration
-@EnableWebSecurity
-@RequiredArgsConstructor
+@EnableMethodSecurity(prePostEnabled = true)
+@AllArgsConstructor
 public class SecurityConfig {
     UserDetailsServiceImpl userDetailsService;
 
-    private final JwtAuthFilter jwtAuthFilter;
+    private JwtAuthFilter jwtAuthFilter;
     
     private CustomAuthenticationEntryPoint unauthorizedHandler;
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        final DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;

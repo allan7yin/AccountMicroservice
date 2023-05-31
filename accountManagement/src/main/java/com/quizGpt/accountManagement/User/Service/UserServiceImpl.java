@@ -4,7 +4,13 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.quizGpt.accountManagement.Role.Constant.Roles;
 import com.quizGpt.accountManagement.Role.Entity.Role;
@@ -14,13 +20,20 @@ import com.quizGpt.accountManagement.User.Exception.UserAlreadyExistsException;
 import com.quizGpt.accountManagement.User.Exception.UserNotFoundException;
 import com.quizGpt.accountManagement.User.Repository.UserRepository;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+@Service
 public class UserServiceImpl implements UserService{
 
+    private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Autowired
     PasswordEncoder encoder;
 
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
 
-    private final RoleRepository roleRepository;
+    private RoleRepository roleRepository;
     
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
         super();
@@ -31,20 +44,22 @@ public class UserServiceImpl implements UserService{
     @Override
     public User createUser(User userRequest) {
         Optional<User> result = userRepository.findByEmail(userRequest.getEmail());
-        if (!result.isPresent()) {
+        if (result.isPresent()) {
             throw new UserAlreadyExistsException("ERROR: this email has already been used - " + userRequest.getEmail());
         }
 
         result = userRepository.findByUsername(userRequest.getUsername());
-        if (!result.isPresent()) {
+        if (result.isPresent()) {
             throw new UserAlreadyExistsException("ERROR: this username has already been used - " + userRequest.getUsername());
         }
 
         // no error throw yet means valid new user registration 
         User user = new User(userRequest.getUsername(), userRequest.getEmail(), encoder.encode(userRequest.getPassword()));
         Set<Role> roles = new HashSet<>();
-        Role userRole = roleRepository.findByName(Roles.ADMIN)
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+        // Role userRole = roleRepository.findByName(Roles.ADMIN)
+        //         .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+
+        Role userRole = new Role(Roles.ADMIN);
         roles.add(userRole);
 
         user.setRoles(roles);

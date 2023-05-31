@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,25 +24,30 @@ import com.quizGpt.accountManagement.Login.Dto.JwtResponseDto;
 import com.quizGpt.accountManagement.Login.Dto.LoginRequestDto;
 
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("/api/login")
+@AllArgsConstructor
 public class LoginController {
-
-    private AuthenticationManager authenticationManager;
-
-    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
-    
+    AuthenticationManager authenticationManager;
+        
     private JwtUtils jwtUtils;
 
-    @PostMapping
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequestDto loginRequestDto) throws AuthenticationException {
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
+    @PostMapping
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequestDto loginRequestDto) {
         logger.info("LOGIN REQUEST: Beginning auth process.");
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
+        Authentication authentication = null;
 
+        try {
+            authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwt(authentication);
 

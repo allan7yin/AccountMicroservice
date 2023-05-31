@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @Data
 @Service
 public class RabbitMqServiceImpl implements ConsumerService {
-
+    
     @Value("${rabbitmq.auth.exchange}")
     private String response_exchange;
 
@@ -59,6 +59,8 @@ public class RabbitMqServiceImpl implements ConsumerService {
         // a layer ontop of the controller 
         logger.info("Received login request for: " + message);
 
+        MessageProperties messageProperties = message.getMessageProperties();
+
         ObjectMapper mapper = new ObjectMapper();
         LoginRequestDto loginRequestDto = null;
         try {
@@ -69,8 +71,20 @@ public class RabbitMqServiceImpl implements ConsumerService {
 
         ResponseEntity<?> response = loginController.authenticateUser(loginRequestDto);
 
-        // Publish a message to a RabbitMQ exchange
-        rabbitTemplate.convertAndSend(response_exchange, login_response_routing_key, response); 
+        logger.info(loginRequestDto.toString());
+        MessageProperties responseProperties = new MessageProperties();
+        responseProperties.setCorrelationId(messageProperties.getCorrelationId());
+
+        byte[] responseBody = null;
+        try {
+            responseBody = mapper.writeValueAsBytes(response);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        Message deliverable = new Message(responseBody, messageProperties);
+
+        rabbitTemplate.convertAndSend(response_exchange, sign_up_response_routing_key, deliverable);
         logger.info("Response sent for: " + message);
     }
 

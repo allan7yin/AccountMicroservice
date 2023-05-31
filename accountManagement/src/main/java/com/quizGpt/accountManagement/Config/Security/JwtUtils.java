@@ -23,6 +23,11 @@ public class JwtUtils {
 
     @Value("${quizgpt.account.management.jwt.expiration.time.ms}")
     private int JWT_EXPIRATION_TIME_MS;
+
+    // public JwtUtils() {
+    //     SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    //     this.JWT_SECRET_KEY = key.toString();
+    // }
     
     public String generateJwt(Authentication authentication) {
         // generate jwt 

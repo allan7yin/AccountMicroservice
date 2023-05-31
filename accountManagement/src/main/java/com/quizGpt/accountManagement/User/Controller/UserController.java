@@ -39,17 +39,17 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody UserDto userDto) {
         User userRequest = modelMapper.map(userDto, User.class);
         
-        // if (userService.existsByUsername(userRequest.getUsername())) {
-        //     return ResponseEntity
-        //             .badRequest()
-        //             .body("ERROR: this username has already been used - " + userRequest.getUsername());
-        // }
+        if (userService.existsByUsername(userRequest.getUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("ERROR: this username has already been used - " + userRequest.getUsername());
+        }
 
-        // if (userService.existsByEmail(userRequest.getEmail())) {
-        //     return ResponseEntity
-        //             .badRequest()
-        //             .body("ERROR: this email has already been used - " + userRequest.getEmail());
-        // }
+        if (userService.existsByEmail(userRequest.getEmail())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("ERROR: this email has already been used - " + userRequest.getEmail());
+        }
 
         User user = userService.createUser(userRequest);
         UserDto userResponseDto = modelMapper.map(user, UserDto.class);
